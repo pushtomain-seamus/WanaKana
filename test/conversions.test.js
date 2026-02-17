@@ -52,6 +52,22 @@ describe('character conversions', () => {
         }
       });
     });
+    describe('Issue #167: Custom Mapping Regression Tests', () => {
+      const customRomajiMapping = {
+        'こう': 'kô',
+        'ゆう': 'yû',
+        'いっこう': 'ikkô', // targets sokuon hijacking
+        'けんゆう': 'kenyû' // targets nasal 'n' transition
+      };
+      // test case #1: ensures basic custom mapping still works
+      it('こういち -> kôichi', () => expect(toRomaji('こういち', { customRomajiMapping })).toBe('kôichi'));
+      // test case #2: verifies that the 'っ' doesn't break the 'こう' mapping
+      it('いっこう -> ikkô', () => expect(toRomaji('いっこう', { customRomajiMapping })).toBe('ikkô'));
+      // test case #3: another sanity check for basic custom mappings
+      it('ゆうじ -> yûji', () => expect(toRomaji('ゆうじ', { customRomajiMapping })).toBe('yûji'));
+      // test case #4: verifies that the 'ん' does break the 'ゆう' mapping
+      it('けんゆう -> kenyû', () => expect(toRomaji('けんゆう', { customRomajiMapping })).toBe('kenyû'));
+    });
   });
 
   describe('Converting kana to kana', () => {

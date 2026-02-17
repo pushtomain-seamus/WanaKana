@@ -6,6 +6,7 @@ import katakanaToHiragana from './utils/katakanaToHiragana';
 import isKatakana from './isKatakana';
 import { getKanaToRomajiTree } from './utils/kanaToRomajiMap';
 import { applyMapping, mergeCustomMapping } from './utils/kanaMapping';
+import { splitInput } from './utils/dom';
 
 // memoize and deeply compare args so we only recreate when necessary
 export const createKanaToRomajiMap = memoizeOne(
@@ -68,7 +69,11 @@ function splitIntoRomaji(input, options, map) {
   const config = Object.assign({}, { isDestinationRomaji: true }, options);
 
   return applyMapping(
-    katakanaToHiragana(input, toRomaji, config),
+    // fix issue #167, passing raw input directly to mapping engine.
+    // pre-proccesing with katakanaToHiragana was destroying custom katakana
+    // patterns and allowing internal grammar rules (like sokuon) to hijack
+    // characters before the custom mapping could be checked.
+    input,
     map,
     !options.IMEMode
   );
